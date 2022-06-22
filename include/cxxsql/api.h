@@ -119,10 +119,7 @@ namespace cxxsql
   {
     template<typename Member>
     consteval bool verify_names() noexcept { return true; }
-    
-//     template<typename Member, typename NextMember>
-//     consteval bool verify_names() noexcept { return Member::name() != NextMember::name(); }
-    
+
     template<typename Member, typename NextMember, typename ...Members>
     consteval bool verify_names() noexcept
       {
