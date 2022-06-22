@@ -98,20 +98,43 @@ namespace cxxsql
     fixed_string<N> value_;
     constexpr column_name(const char (&v)[N+1]) : value_{v}
       {}
-    constexpr auto operator<=>( column_name<N> const &) const noexcept = default;
+      
+    template<unsigned M>
+    constexpr bool operator ==( column_name<M> const & r) const noexcept 
+      { return N == M && value_ == r.value_; }
     };
     
   template< unsigned N>
   column_name(char const (&str)[N])->column_name<N-1>;
   
-  template<column_name name, typename dbtype, nullable_e nullable = nullable_e::not_null>
+  template<column_name nm, typename dbtype, nullable_e nullable = nullable_e::not_null>
   struct column_t
     {
-    using type = column_t<name,dbtype,nullable>;
+    static consteval auto name() noexcept { return nm; }
+    using type = column_t<nm,dbtype,nullable>;
     using value_type = detail::map_db_type_t<dbtype::underlaying_db_type(), dbtype::size(), nullable>;
     };
 
+  namespace detail
+  {
+    template<typename Member>
+    consteval bool verify_names() noexcept { return true; }
+    
+//     template<typename Member, typename NextMember>
+//     consteval bool verify_names() noexcept { return Member::name() != NextMember::name(); }
+    
+    template<typename Member, typename NextMember, typename ...Members>
+    consteval bool verify_names() noexcept
+      {
+      //verify this member name is unique across all members
+      return Member::name() != NextMember::name() && verify_names<Member, Members...>()
+        //verify next member with other members
+        && verify_names<NextMember, Members...>()
+        ;
+      }
+  }
   template<typename ...Members>
+  requires requires { requires detail::verify_names<Members...>() == true; }
   struct row_decl_t : public Members ...
     {
     using record_type = std::tuple<typename Members::value_type ...>;

@@ -19,6 +19,10 @@ namespace cxxsql::detail
       { return {&m_data[0], N}; }
     
     constexpr auto operator<=>( basic_fixed_string<char_type,N> const &) const noexcept = default;
+    
+    template<unsigned M>
+    constexpr auto operator == ( basic_fixed_string<char_type,M> const & r) const noexcept
+      { return N == M && value() == r.value(); }
     };
 
   template <typename char_type, unsigned N>
