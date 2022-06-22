@@ -48,10 +48,12 @@ cxxsql::test_table2_t::record_type rec2 {};
 ```
 
 ```bash
-cxx20sql/include/cxxsql/api.h:163:32: error: constraints not satisfied for class template 'row_decl_t' 
-  [with Members = <cxxsql::column_t<{{{105, 100, 0}}}, cxxsql::detail::db_type<cxxsql::db_type_e::int32, 0>, cxxsql::nullable_e::not_null>,
+cxx20sql/main.cpp:17:1: error: constraints not satisfied for class template 'table_decl_t'
+     [with str = {{116, 101, 115, 116, 95, 116, 97, 98, 108, 101, ...}},
+        Members = <cxxsql::column_t<{{{105, 100, 0}}}, cxxsql::detail::db_type<cxxsql::db_type_e::int32, 0>, cxxsql::nullable_e::not_null>,
                    cxxsql::column_t<{{{105, 100, 0}}}, cxxsql::detail::db_type<cxxsql::db_type_e::int16, 0>, cxxsql::nullable_e::not_null>>]
-  struct table_decl_t : public row_decl_t<Members ...>
-                               ^~~~~~~~~~~~~~~~~~~~~~~
-                               
+table_decl_t<"test_table2",
+^~~~~~~~~~~~~~~~~~~~~~~~~~~
+cxx20sql/include/cxxsql/api.h:141:32: note: because 'detail::verify_names<cxxsql::column_t<{{{105, 100, 0}}}, cxxsql::detail::db_type<cxxsql::db_type_e::int32, 0>, cxxsql::nullable_e::not_null>, cxxsql::column_t<{{{105, 100, 0}}}, cxxsql::detail::db_type<cxxsql::db_type_e::int16, 0>, cxxsql::nullable_e::not_null> >() == true' (0 == 1) evaluated to false
+  requires requires { requires detail::verify_names<Members...>() == true; }
 ```

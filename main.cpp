@@ -13,11 +13,11 @@ table_decl_t<"test_table",
   column_t<"data2",db_type::binary<5>>
   >;
   
-using test_table2_t = 
-table_decl_t<"test_table2",
-  column_t<"id",db_type::int32<>>,
-  column_t<"id",db_type::int16<>>
-  >;
+// using test_table2_t = 
+// table_decl_t<"test_table2",
+//   column_t<"id",db_type::int32<>>,
+//   column_t<"id",db_type::int16<>>
+//   >;
 }
 
 int main(int argc, char **argv) 

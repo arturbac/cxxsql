@@ -138,6 +138,7 @@ namespace cxxsql
     };
   
   template<basic_fixed_string str, typename ...Members>
+  requires requires { requires detail::verify_names<Members...>() == true; }
   struct table_decl_t : public row_decl_t<Members ...>
     {
     static constexpr auto name() noexcept { return str; }
