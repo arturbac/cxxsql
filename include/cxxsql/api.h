@@ -85,7 +85,8 @@ namespace cxxsql
     
     using varchar = detail::db_type<db_type_e::varchar>;
     
-    template<unsigned N = 0>
+    template<unsigned N = 1>
+    requires requires { N != 0; }
     using binary = detail::db_type<db_type_e::binary, N>;
     
     using varbinary = detail::db_type<db_type_e::varbinary>;
