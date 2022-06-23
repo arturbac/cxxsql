@@ -15,11 +15,12 @@ using test_table_t =
       column_t<"data2", binary<5>>
       >;
     
-using test_table2_t = 
-    table_t<"test_table2",
-      column_t<"id",int32<>>,
-      column_t<"id",int16<>>
-      >;
+// using test_table2_t = 
+//     table_t<"test_table2",
+//       column_t<"id",int32<>>,
+//       column_t<"id",int16<>>
+//       >;
+      
 }
 
 int main(int argc, char **argv) 
