@@ -1,27 +1,22 @@
 #pragma once
 
+#include "detail/common.h"
 #include "detail/basic_fixed_string.h"
 #include <string>
 #include <array>
-#include <cstdint>
+
 #include <vector>
 #include <tuple>
 #include <optional>
 
 namespace cxxsql
 {
-  using detail::basic_fixed_string;
-  using detail::fixed_string;
-  
-  enum struct db_type_e : uint8_t
+  namespace property
     {
-    int16, int32, int64, char8, varchar, binary, varbinary
-    };
+    inline constexpr auto null = detail::nullable_e::null;
+    inline constexpr auto not_null = detail::nullable_e::not_null;
     
-  enum struct nullable_e : bool
-    {
-    not_null, null
-    };
+    }
     
   namespace detail
   {
@@ -69,45 +64,53 @@ namespace cxxsql
     using map_db_type_t = typename map_db_type<dbtype, N, nullable>::type;
   }
   
-  namespace db_type
+  namespace property
     {
     template<unsigned N = 0>
-    using char8 = detail::db_type<db_type_e::char8, N>;
+    using char8 = detail::db_type<detail::db_type_e::char8, N>;
     
     template<unsigned N = 0>
-    using int16 = detail::db_type<db_type_e::int16, N>;
+    using int16 = detail::db_type<detail::db_type_e::int16, N>;
     
     template<unsigned N = 0>
-    using int32 = detail::db_type<db_type_e::int32, N>;
+    using int32 = detail::db_type<detail::db_type_e::int32, N>;
     
     template<unsigned N = 0>
-    using int64 = detail::db_type<db_type_e::int64, N>;
+    using int64 = detail::db_type<detail::db_type_e::int64, N>;
     
-    using varchar = detail::db_type<db_type_e::varchar>;
+    using varchar = detail::db_type<detail::db_type_e::varchar>;
     
     template<unsigned N = 1>
     requires requires { N != 0; }
-    using binary = detail::db_type<db_type_e::binary, N>;
+    using binary = detail::db_type<detail::db_type_e::binary, N>;
     
-    using varbinary = detail::db_type<db_type_e::varbinary>;
+    using varbinary = detail::db_type<detail::db_type_e::varbinary>;
     }
   
   template<unsigned N>
   struct column_name
     {
-    fixed_string<N> value_;
+    detail::fixed_string<N> value_;
+    
     constexpr column_name(const char (&v)[N+1]) : value_{v}
       {}
       
     template<unsigned M>
     constexpr bool operator ==( column_name<M> const & r) const noexcept 
-      { return N == M && value_ == r.value_; }
+      { return value_ == r.value_; }
+      
+    template<unsigned M>
+    constexpr auto operator <=>( column_name<M> const & r) const noexcept 
+      { return value_ <=> r.value_; }
+      
+    constexpr std::basic_string_view<char> view() const noexcept 
+      { return value_.value(); }
     };
     
   template< unsigned N>
   column_name(char const (&str)[N])->column_name<N-1>;
   
-  template<column_name nm, typename dbtype, nullable_e nullable = nullable_e::not_null>
+  template<column_name nm, typename dbtype, detail::nullable_e nullable = detail::nullable_e::not_null>
   struct column_t
     {
     static consteval auto name() noexcept { return nm; }
@@ -118,28 +121,34 @@ namespace cxxsql
   namespace detail
   {
     template<typename Member>
-    consteval bool verify_names() noexcept { return true; }
+    consteval bool must_be_unqiue_column_name() noexcept { return true; }
 
     template<typename Member, typename NextMember, typename ...Members>
-    consteval bool verify_names() noexcept
+    consteval bool must_be_unqiue_column_name() noexcept
       {
       //verify this member name is unique across all members
-      return Member::name() != NextMember::name() && verify_names<Member, Members...>()
+      return Member::name() != NextMember::name() && must_be_unqiue_column_name<Member, Members...>()
         //verify next member with other members
-        && verify_names<NextMember, Members...>()
+        && must_be_unqiue_column_name<NextMember, Members...>()
         ;
       }
   }
+  namespace concepts
+    {
+    template<typename ...Members>
+    concept must_be_unqiue_column_name = detail::must_be_unqiue_column_name<Members...>();
+    }
+    
   template<typename ...Members>
-  requires requires { requires detail::verify_names<Members...>() == true; }
-  struct row_decl_t : public Members ...
+  requires concepts::must_be_unqiue_column_name<Members...>
+  struct columns_t : public Members ...
     {
     using record_type = std::tuple<typename Members::value_type ...>;
     };
   
-  template<basic_fixed_string str, typename ...Members>
-  requires requires { requires detail::verify_names<Members...>() == true; }
-  struct table_decl_t : public row_decl_t<Members ...>
+  template<detail::basic_fixed_string str, typename ...Members>
+  requires concepts::must_be_unqiue_column_name<Members...>
+  struct table_t : public columns_t<Members ...>
     {
     static constexpr auto name() noexcept { return str; }
     };
