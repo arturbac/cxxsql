@@ -27,10 +27,37 @@ using test_table_t =
       column_t<"data", varbinary>,
       column_t<"data2", binary<5>>
       >;
+      
 }
 
 cxxsql::test_table_t::record_type
    rec{ 3,{'c','x','t'},{{'a','b'}}, std::nullopt, "text", {0x24u,0x23u,0x25u},{0x0u,0x1u,0x2u,0x3u} };
+   
+
+```
+
+ - example generate select (wip)
+ 
+```C++
+namespace cxxsql
+{
+static constexpr auto create_statment_test_table = create_table_statment<test_table_t>();
+}
+std::cout << cxxsql::create_statment_test_table.view() << std::endl;
+```
+
+outputs const evaluated string literal
+
+```SQL
+CREATE TABLE test_table (
+	id int not_null,
+	name char[] not_null,
+	nameopt char[] null,
+	oid int null,
+	descr varchar null,
+	data varbinary not_null,
+	data2 binary[] not_null
+	)
 ```
 
  - constraint on column name uniqueness

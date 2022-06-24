@@ -9,6 +9,8 @@ namespace cxxsql::detail
     {
     detail::fixed_string<N> value_;
     
+    constexpr auto value() const noexcept { return value_; }
+    
     constexpr identity_name(const char (&v)[N+1]) : value_{v}
       {}
       

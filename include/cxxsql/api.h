@@ -7,7 +7,41 @@
 
 namespace cxxsql
 {
-
+  namespace detail
+    {
+    template<unsigned counter, typename Member, typename ...Members>
+    struct subclass_member_t
+      {
+      using member_type = Member;
+      using next_member_t = subclass_member_t<(counter+1), Members...>;
+      
+      static constexpr unsigned index() noexcept { return counter; }
+      };
+      
+    template<unsigned counter, typename Member>
+    struct subclass_member_t<counter,Member>
+      {
+      using member_type = Member;
+      using next_member_t = void;
+      static constexpr unsigned index() noexcept { return counter; }
+      };
+    }
+  // https://www.postgresql.org/docs/14/sql-createtable.html
+  // options TEMPORARY | UNLOGGED
+  namespace detail
+    {
+    struct table_option_tag {};
+    }
+  
+  template< unsigned N>
+  struct table_option_t : public detail::identity_name<detail::table_option_tag,N>
+    {
+    using detail::identity_name<detail::table_option_tag,N>::identity_name;
+    };
+    
+  template< unsigned N>
+  table_option_t(char const (&str)[N])->table_option_t<N-1>;
+  
   namespace detail
   {
     template<typename Member>
@@ -29,27 +63,74 @@ namespace cxxsql
     }
     
   template<typename ...Members>
-  requires concepts::must_be_unqiue_column_name<Members...>
+    requires concepts::must_be_unqiue_column_name<Members...>
   struct columns_t : public Members ...
     {
     using record_type = std::tuple<typename Members::value_type ...>;
     };
   
-  struct table_name_tag {};
+  namespace detail
+    {
+    struct table_name_tag {};
+    }
   
   template<unsigned N>
-  struct table_name_t : public detail::identity_name<table_name_tag,N> 
+  struct table_name_t : public detail::identity_name<detail::table_name_tag,N> 
     {
-    using detail::identity_name<table_name_tag,N>::identity_name;
+    using detail::identity_name<detail::table_name_tag,N>::identity_name;
     };
 
   template< unsigned N>
   table_name_t(char const (&str)[N])->table_name_t<N-1>;
   
   template<table_name_t str, typename ...Members>
-  requires concepts::must_be_unqiue_column_name<Members...>
+    requires concepts::must_be_unqiue_column_name<Members...>
   struct table_t : public columns_t<Members ...>
     {
+    using first_member_t = detail::subclass_member_t<0,Members...>;
+    
     static constexpr auto name() noexcept { return str; }
     };
+    
+  namespace detail
+    {
+    struct sql_command_tag {};
+    }
+    
+  template<unsigned N>
+  struct sql_command_text_t : public detail::identity_name<detail::sql_command_tag,N> 
+    {
+    using detail::identity_name<detail::sql_command_tag,N>::identity_name;
+    };
+  
+  using detail::fs;
+    
+  template<typename MemberEnumerator>
+  constexpr auto expand_table_member() noexcept
+    {
+    using column_type = typename MemberEnumerator::member_type;
+    constexpr bool last_elem = std::is_same_v<typename MemberEnumerator::next_member_t,void>;
+    return detail::concat_fixed_string( fs("\t"),
+                                        column_type::name().value(),
+                                        fs(" "),
+                                        column_type::db_type::db_string,
+                                        detail::cond_str<detail::nullable_e::not_null == column_type::nullable>(fs(" not_null"), fs(" null")),
+                                        detail::cond_str<last_elem>(fs(""), fs(",\n")),
+                                        expand_table_member<typename MemberEnumerator::next_member_t>() );
+    }
+    
+  template<>
+  constexpr auto expand_table_member<void>() noexcept
+    { return detail::fixed_string<0>{}; }
+  
+  template<typename table>
+  consteval auto create_table_statment(  ) noexcept
+    {
+    return detail::concat_fixed_string(fs("CREATE TABLE "),
+                               table::name().value(),
+                               fs(" (\n"),
+                               expand_table_member<typename table::first_member_t>(),
+                               fs("\n\t)")
+                               );
+    }
 }

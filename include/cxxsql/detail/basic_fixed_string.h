@@ -70,4 +70,18 @@ namespace cxxsql::detail
     {
     return concat_fixed_string( l, concat_fixed_string(r,u...));
     }
+    
+  template <bool cond, concepts::is_char_type char_type, unsigned N, unsigned M>
+  consteval auto cond_str( basic_fixed_string<char_type,N> l, basic_fixed_string<char_type,M> r )
+    {
+    if constexpr (cond)
+      return l;
+    else
+      return r;
+    }
+    
+    
+  template <concepts::is_char_type char_type, unsigned N>
+  consteval auto fs(char_type const (&str)[N])
+    { return detail::basic_fixed_string<char_type, N-1>(str); }
 }

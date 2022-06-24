@@ -16,11 +16,13 @@ namespace cxxsql
   template< unsigned N>
   column_name(char const (&str)[N])->column_name<N-1>;
   
-  template<column_name nm, typename dbtype, detail::nullable_e nullable = detail::nullable_e::not_null>
+  template<column_name nm, typename dbtype, detail::nullable_e nbl = detail::nullable_e::not_null>
   struct column_t
     {
+    static constexpr detail::nullable_e nullable = nbl;
     static consteval auto name() noexcept { return nm; }
     using type = column_t<nm,dbtype,nullable>;
-    using value_type = detail::map_db_type_t<dbtype::underlaying_db_type(), dbtype::size(), nullable>;
+    using db_type = detail::map_db_type<dbtype::underlaying_db_type(), dbtype::size(), nullable>;
+    using value_type = typename db_type::type;
     };
 }

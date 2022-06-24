@@ -21,20 +21,14 @@ using test_table_t =
 //       column_t<"id",int16<>>
 //       >;
       
-  constexpr detail::basic_fixed_string str1 {"select "};
-  constexpr detail::basic_fixed_string str2 {"id2, id3 "};
-  constexpr detail::basic_fixed_string str3 {"from "};
-  constexpr detail::basic_fixed_string str4 {"table"};
-
-  constexpr auto merged2 = detail::concat_fixed_string( str1, str2, str3, str4 );
+static constexpr auto create_statment_test_table = create_table_statment<test_table_t>();
 }
 
-int main(int argc, char **argv) 
+int main(int argc, char const * const * argv) 
 {
   cxxsql::test_table_t::record_type rec{ 3,{'c','x','t'},{{'a','b'}}, std::nullopt, "text", {0x24u,0x23u,0x25u},{0x0u,0x1u,0x2u,0x3u} };
-//   cxxsql::test_table2_t::record_type rec2{};
-  
-  std::cout << cxxsql::merged2.view() << std::endl;
+
+  std::cout << cxxsql::create_statment_test_table.view() << std::endl;
 //   __builtin_dump_struct(&rec, &printf);
   return 0;
 }
