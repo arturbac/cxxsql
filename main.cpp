@@ -3,7 +3,6 @@
 
 namespace cxxsql
 {
-using namespace property;
 
 using test_table_t = 
     table_t<"test_table",
