@@ -1,21 +1,14 @@
 #pragma once
 
+#include "strconcept.h"
 #include <string_view>
 #include <algorithm>
 #include <array>
 #include <concepts>
 
-namespace cxxsql::concepts
+namespace stralgo
 {
-  template<typename T, typename ... U>
-  concept is_any_of = (std::same_as<T, U> || ...);
-
-  template<typename maybe_char_type>
-  concept is_char_type = is_any_of<maybe_char_type,char,wchar_t,char16_t,char32_t,char8_t>;
-}
-namespace cxxsql::detail
-{
-  template <concepts::is_char_type CharType, unsigned N>
+  template <strconcept::char_type CharType, unsigned N>
   struct basic_fixed_string
     {
     using char_type = CharType;
@@ -42,20 +35,20 @@ namespace cxxsql::detail
       { return N == M && view() == r.view(); }
     };
 
-  template <concepts::is_char_type char_type, unsigned N>
+  template <strconcept::char_type char_type, unsigned N>
   basic_fixed_string(char_type const (&str)[N])->basic_fixed_string<char_type, N-1>;
 
   template <unsigned N>
   using fixed_string = basic_fixed_string<char, N>;
   
-  template <concepts::is_char_type char_type, unsigned N>
+  template <strconcept::char_type char_type, unsigned N>
   consteval unsigned calculate_size(basic_fixed_string<char_type,N> ) noexcept { return N; }
   
-  template <concepts::is_char_type char_type, unsigned N, typename ... U>
+  template <strconcept::char_type char_type, unsigned N, typename ... U>
   consteval unsigned calculate_size(basic_fixed_string<char_type,N>, U ...u) noexcept 
     { return N + calculate_size(u...); }
   
-  template <concepts::is_char_type char_type, unsigned N, unsigned M>
+  template <strconcept::char_type char_type, unsigned N, unsigned M>
   consteval auto concat_fixed_string( basic_fixed_string<char_type,N> l, basic_fixed_string<char_type,M> r) noexcept
     {
     basic_fixed_string<char_type, N + M> result;
@@ -65,14 +58,27 @@ namespace cxxsql::detail
     return result;
     }
 
-  template <concepts::is_char_type char_type, unsigned N, unsigned M, typename ... U>
+  template <strconcept::char_type char_type, unsigned N, unsigned M, typename ... U>
   consteval auto concat_fixed_string( basic_fixed_string<char_type,N> l, basic_fixed_string<char_type,M> r, U ...u) noexcept
     {
     return concat_fixed_string( l, concat_fixed_string(r,u...));
     }
+  
+  template <strconcept::char_type char_type, unsigned N, unsigned M>
+  consteval auto operator +( basic_fixed_string<char_type,N> l, basic_fixed_string<char_type,M> r ) noexcept
+    { return concat_fixed_string( l, r ); }
     
-  template <bool cond, concepts::is_char_type char_type, unsigned N, unsigned M>
-  consteval auto cond_str( basic_fixed_string<char_type,N> l, basic_fixed_string<char_type,M> r )
+  template <bool cond, strconcept::char_type char_type, unsigned N>
+  consteval auto cond_str( basic_fixed_string<char_type,N> l ) noexcept
+    {
+    if constexpr (cond)
+      return l;
+    else
+      return basic_fixed_string<char_type,0>{};
+    }
+    
+  template <bool cond, strconcept::char_type char_type, unsigned N, unsigned M>
+  consteval auto cond_str( basic_fixed_string<char_type,N> l, basic_fixed_string<char_type,M> r ) noexcept
     {
     if constexpr (cond)
       return l;
@@ -81,7 +87,7 @@ namespace cxxsql::detail
     }
     
     
-  template <concepts::is_char_type char_type, unsigned N>
+  template <strconcept::char_type char_type, unsigned N>
   consteval auto fs(char_type const (&str)[N])
-    { return detail::basic_fixed_string<char_type, N-1>(str); }
+    { return basic_fixed_string<char_type, N-1>(str); }
 }
