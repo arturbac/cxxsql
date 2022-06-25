@@ -102,35 +102,45 @@ namespace cxxsql
     {
     using detail::identity_name<detail::sql_command_tag,N>::identity_name;
     };
-  
-  using detail::fs;
     
-  template<typename MemberEnumerator>
-  constexpr auto expand_table_member() noexcept
+  template<unsigned N>
+  sql_command_text_t(char const (&str)[N])->sql_command_text_t<N>;
+  
+  template<unsigned N>
+  sql_command_text_t(detail::fixed_string<N> v)->sql_command_text_t<N>;
+  
+  namespace detail
     {
-    using column_type = typename MemberEnumerator::member_type;
-    constexpr bool last_elem = std::is_same_v<typename MemberEnumerator::next_member_t,void>;
-    return detail::concat_fixed_string( fs("\t"),
-                                        column_type::name().value(),
-                                        fs(" "),
-                                        column_type::db_type::db_string,
-                                        detail::cond_str<detail::nullable_e::not_null == column_type::nullable>(fs(" not_null"), fs(" null")),
-                                        detail::cond_str<last_elem>(fs(""), fs(",\n")),
-                                        expand_table_member<typename MemberEnumerator::next_member_t>() );
+    template<typename MemberEnumerator>
+    constexpr auto expand_table_member() noexcept
+      {
+      using stralgo::fs;
+      using column_type = typename MemberEnumerator::member_type;
+      constexpr bool last_elem = std::is_same_v<typename MemberEnumerator::next_member_t,void>;
+      return stralgo::concat_fixed_string( fs("\t\""), column_type::name().value(), fs("\" "),
+                                          column_type::db_type::db_string,
+                                          stralgo::cond_str<detail::nullable_e::not_null == column_type::nullable>(
+                                            fs(" not_null"), fs(" null")),
+                                          stralgo::cond_str<!last_elem>(fs(",\n")),
+                                          expand_table_member<typename MemberEnumerator::next_member_t>() );
+      }
+      
+    template<>
+    constexpr auto expand_table_member<void>() noexcept
+      { return detail::fixed_string<0>{}; }
+  
     }
-    
-  template<>
-  constexpr auto expand_table_member<void>() noexcept
-    { return detail::fixed_string<0>{}; }
-  
   template<typename table>
-  consteval auto create_table_statment(  ) noexcept
+  consteval auto create_table_statement() noexcept
     {
-    return detail::concat_fixed_string(fs("CREATE TABLE "),
+    using stralgo::fs;
+    return sql_command_text_t{
+       stralgo::concat_fixed_string(fs("CREATE TABLE "),
                                table::name().value(),
                                fs(" (\n"),
-                               expand_table_member<typename table::first_member_t>(),
+                               detail::expand_table_member<typename table::first_member_t>(),
                                fs("\n\t)")
-                               );
+                               )
+        };
     }
 }

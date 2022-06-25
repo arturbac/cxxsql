@@ -1,17 +1,23 @@
 #pragma once
 
-#include "basic_fixed_string.h"
+#include <stralgo/basic_fixed_string.h>
 
 namespace cxxsql::detail
 {
+  using stralgo::basic_fixed_string;
+  using stralgo::fixed_string;
+  
   template<typename tag, unsigned N>
   struct identity_name
     {
-    detail::fixed_string<N> value_;
+    fixed_string<N> value_;
     
     constexpr auto value() const noexcept { return value_; }
     
-    constexpr identity_name(const char (&v)[N+1]) : value_{v}
+    constexpr identity_name(const char (&v)[N+1]) noexcept : value_{v}
+      {}
+      
+    constexpr identity_name( fixed_string<N> v ) noexcept : value_{v}
       {}
       
     template<unsigned M>

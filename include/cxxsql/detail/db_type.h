@@ -1,7 +1,8 @@
 #pragma once
 
 #include "common.h"
-#include "basic_fixed_string.h"
+#include <stralgo/basic_fixed_string.h>
+#include <stralgo/strconv_numeric.h>
 #include <string>
 #include <array>
 #include <vector>
@@ -9,6 +10,8 @@
 
 namespace cxxsql::detail
 {
+  using stralgo::basic_fixed_string;
+  
   template<db_type_e dbtype, unsigned N = 0>
   struct db_type
     {
@@ -76,9 +79,10 @@ namespace cxxsql::detail
     using type = std::array<typename related_type::type,N>;
     
     static constexpr basic_fixed_string db_string {
-      concat_fixed_string(
+      stralgo::concat_fixed_string(
         related_type::db_string,
         basic_fixed_string("["),
+        strconv::integral_to_string<N>(),
         basic_fixed_string("]")
       )
       

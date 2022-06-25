@@ -15,7 +15,6 @@ Designing modern c++20 sql constevaluated api
 
 namespace cxxsql
 {
-using namespace property;
 
 using test_table_t = 
     table_t<"test_table",
@@ -50,13 +49,13 @@ outputs const evaluated string literal
 
 ```SQL
 CREATE TABLE test_table (
-	id int not_null,
-	name char[] not_null,
-	nameopt char[] null,
-	oid int null,
-	descr varchar null,
-	data varbinary not_null,
-	data2 binary[] not_null
+	"id" int not_null,
+	"name" char[3] not_null,
+	"nameopt" char[3] null,
+	"oid" int null,
+	"descr" varchar null,
+	"data" varbinary not_null,
+	"data2" binary[5] not_null
 	)
 ```
 
@@ -67,7 +66,6 @@ CREATE TABLE test_table (
 
 namespace cxxsql
 {
-using namespace property;
 
 using test_table2_t = 
     table_t<"test_table2",
@@ -95,3 +93,7 @@ cxx20sql/include/cxxsql/api.h:139:42: note: because 'detail::must_be_unqiue_colu
    evaluated to false
     concept must_be_unqiue_column_name = detail::must_be_unqiue_column_name<Members...>();
 ```
+## todos
+
+ - compile time sql syntax generators (psql/mssql/slite)
+ - extended options for tables
