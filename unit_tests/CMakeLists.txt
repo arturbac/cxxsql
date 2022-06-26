@@ -1,16 +1,5 @@
 set( CXXSQL_INCLUDES ${PROJECT_SOURCE_DIR}/include )
 
-#function(add_compile_test HEADER_FILE_NAME )
-  #get_filename_component(TEST_NAME ${HEADER_FILE_NAME} NAME_WE)
-  #set( SOURCE_FILE_NAME test_${TEST_NAME}.cc )
-  #set( GEN_SOURCE_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/${SOURCE_FILE_NAME} )
-  
-  #file(WRITE ${GEN_SOURCE_FILE_NAME} "#include <${HEADER_FILE_NAME}.h>\nint main( int argc, char ** argv ) {return cxxsql::${HEADER_FILE_NAME}_unit_tests() ? EXIT_SUCCESS : EXIT_FAILURE; }\n" )
-
-  #add_test(NAME ${TEST_NAME}_cxx20 
-    #COMMAND ${CMAKE_CXX_COMPILER} -std=c++20 -I${CXXSQL_INCLUDES} -I${CMAKE_CURRENT_SOURCE_DIR}/header_only ${GEN_SOURCE_FILE_NAME} -o ${CMAKE_CURRENT_BINARY_DIR}/test_${TEST_NAME}_cxx20.o )
-
-#endfunction()
 add_custom_target( unit_tests )
 
 function(add_compile_test_common HEADER_FILE_NAME EXPECT_FAIL)

@@ -93,17 +93,34 @@ namespace cxxsql
   namespace detail
     {
     template<typename MemberEnumerator>
+    constexpr auto expand_column_constraints() noexcept
+      {
+      using stralgo::fs;
+      using column_constraint = typename MemberEnumerator::member_type;
+      using next_column_constraint = typename MemberEnumerator::next_member_t;
+//       constexpr bool last_elem = std::is_same_v<next_column_constraint,void>;
+      return stralgo::concat_fixed_string(
+                      fs(" "),
+                      column_constraint::value(),
+                      expand_column_constraints<next_column_constraint>() 
+                      );
+      }
+    template<>
+    constexpr auto expand_column_constraints<void>() noexcept
+      { return detail::fixed_string<0>{}; }
+      
+    template<typename MemberEnumerator>
     constexpr auto expand_table_member() noexcept
       {
       using stralgo::fs;
       using column_type = typename MemberEnumerator::member_type;
-      constexpr bool last_elem = std::is_same_v<typename MemberEnumerator::next_member_t,void>;
+      using next_column_type = typename MemberEnumerator::next_member_t;
+      constexpr bool last_elem = std::is_same_v<next_column_type,void>;
       return stralgo::concat_fixed_string( fs("\t\""), column_type::name().value(), fs("\" "),
                                           column_type::db_type::db_string,
-                                          stralgo::cond_str<detail::nullable_e::not_null == column_type::nullable>(
-                                            fs(" not_null"), fs(" null")),
+                                          expand_column_constraints<typename column_type::constraints::first_member_t>(),
                                           stralgo::cond_str<!last_elem>(fs(",\n")),
-                                          expand_table_member<typename MemberEnumerator::next_member_t>() );
+                                          expand_table_member<next_column_type>() );
       }
       
     template<>

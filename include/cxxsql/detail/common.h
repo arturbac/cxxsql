@@ -31,4 +31,11 @@ namespace cxxsql::detail
     using next_member_t = void;
     static constexpr unsigned index() noexcept { return counter; }
     };
+  template<>
+  struct subclass_member_t<0,void>
+    {
+    using member_type = void;
+    using next_member_t = void;
+//     static constexpr unsigned index() noexcept { return counter; }
+    };
 }
