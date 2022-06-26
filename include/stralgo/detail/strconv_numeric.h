@@ -247,7 +247,7 @@ namespace strconv::detail
 
     return oit;
     }
-  ;
+  
   //--------------------------------------------------------------------------------------------------------
   ///\brief preprocessed info for output string calculation and future formating
   template<strconcept::unsigned_integral value_type>
