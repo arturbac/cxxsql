@@ -11,6 +11,7 @@ set( CXXSQL_INCLUDES ${PROJECT_SOURCE_DIR}/include )
     #COMMAND ${CMAKE_CXX_COMPILER} -std=c++20 -I${CXXSQL_INCLUDES} -I${CMAKE_CURRENT_SOURCE_DIR}/header_only ${GEN_SOURCE_FILE_NAME} -o ${CMAKE_CURRENT_BINARY_DIR}/test_${TEST_NAME}_cxx20.o )
 
 #endfunction()
+add_custom_target( unit_tests )
 
 function(add_compile_test_common HEADER_FILE_NAME EXPECT_FAIL)
   get_filename_component(TEST_NAME ${HEADER_FILE_NAME} NAME_WE)
@@ -44,10 +45,13 @@ function(add_fail_compile_test HEADER_FILE_NAME )
 endfunction()
 
 function(add_runtime_test TEST_NAME )
-  #get_filename_component(TEST_NAME ${FILE_NAME} NAME_WE)
+
   set( SOURCE_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/runtime/${TEST_NAME}.cc )
   
   add_executable(${TEST_NAME}_cxx20_rt ${SOURCE_FILE_NAME})
+  
+  add_dependencies( unit_tests ${TEST_NAME}_cxx20_rt )
+  
   target_compile_options( ${TEST_NAME}_cxx20_rt PRIVATE -Wno-exit-time-destructors )
   target_link_libraries( ${TEST_NAME}_cxx20_rt 
     PRIVATE 
@@ -59,7 +63,7 @@ endfunction()
 
 add_compile_test( table_decl )
 add_fail_compile_test( fail_table_decl )
-set_tests_properties(fail_table_decl PROPERTIES DEPENDS "table_decl")
+set_tests_properties(fail_table_decl PROPERTIES DEPENDS table_decl )
 
 set_tests_properties(table_decl   PROPERTIES FIXTURES_SETUP syntax_decl )
 set_tests_properties(fail_table_decl   PROPERTIES FIXTURES_SETUP syntax_decl )
