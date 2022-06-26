@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 
 project(cxx20sql)
 
+enable_testing()
+
 set(CMAKE_CXX_STANDARD 20 )
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS OFF )
@@ -44,17 +46,18 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
   endif()
 endif()
 
-add_library(cxx20sql INTERFACE)
+add_library(cxxsql INTERFACE)
 
-target_include_directories(cxx20sql INTERFACE include )
-add_library(cxx20sql::cxx20sql ALIAS cxx20sql)
+target_include_directories(cxxsql INTERFACE include )
+add_library(cxxsql::cxxsql ALIAS cxxsql)
 #target_sources(cxx20sql INTERFACE
   #FILE_SET HEADERS
     #BASE_DIRS src
     #FILES include/
 #)
 
-add_executable(cxx20sqlm main.cpp)
-target_link_libraries( cxx20sqlm PRIVATE cxx20sql::cxx20sql )
-#target_link_libraries(main PRIVATE Boost::ut)
-install(TARGETS cxx20sqlm RUNTIME DESTINATION bin)
+add_executable(cxxsqlm main.cpp)
+target_link_libraries( cxxsqlm PRIVATE cxxsql::cxxsql )
+
+add_subdirectory(unit_tests)
+
