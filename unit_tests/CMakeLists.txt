@@ -58,7 +58,8 @@ set_tests_properties(table_decl   PROPERTIES FIXTURES_SETUP syntax_decl )
 set_tests_properties(fail_table_decl   PROPERTIES FIXTURES_SETUP syntax_decl )
 
 add_runtime_test( create_table )
-
 set_tests_properties(create_table PROPERTIES FIXTURES_REQUIRED syntax_decl)
 
+add_runtime_test( crtp_explained )
+set_tests_properties(crtp_explained PROPERTIES FIXTURES_REQUIRED syntax_decl)
 
