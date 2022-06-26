@@ -1,0 +1,167 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vcpkg",
+      "hidden": true,
+      "cacheVariables": {
+        "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed",
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg_overlay/ports",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "ci-ccache",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
+      }
+    },
+    {
+      "name": "ci-clang",
+      "hidden": true,
+      "environment": {
+        "CC": "clang",
+        "CXX": "clang++"
+      }
+    },
+    {
+      "name": "ci-clang-cl",
+      "hidden": true,
+      "environment": {
+        "CC": "clang-cl",
+        "CXX": "clang++-cl"
+      }
+    },
+    {
+      "name": "ci-debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "ci-release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "ci-unix",
+      "hidden": true,
+      "generator": "Ninja",
+      "inherits": [
+        "vcpkg"
+      ]
+    },
+    {
+      "name": "ci-win64",
+      "hidden": true,
+      "inherits": [
+        "vcpkg"
+      ],
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ci-gcc-debug",
+      "inherits": [
+        "ci-ccache",
+        "ci-debug",
+        "ci-unix"
+      ]
+    },
+    {
+      "name": "ci-gcc-release",
+      "inherits": [
+        "ci-ccache",
+        "ci-release",
+        "ci-unix"
+      ]
+    },
+    {
+      "name": "ci-clang-debug",
+      "inherits": [
+        "ci-ccache",
+        "ci-debug",
+        "ci-unix",
+        "ci-clang"
+      ]
+    },
+    {
+      "name": "ci-clang-release",
+      "inherits": [
+        "ci-ccache",
+        "ci-release",
+        "ci-unix",
+        "ci-clang"
+      ]
+    },
+    {
+      "name": "ci-msvc-debug",
+      "inherits": [
+        "ci-ccache",
+        "ci-debug",
+        "ci-win64"
+      ]
+    },
+    {
+      "name": "ci-msvc-release",
+      "inherits": [
+        "ci-ccache",
+        "ci-release",
+        "ci-win64"
+      ]
+    },
+    {
+      "name": "ci-clang-cl-debug",
+      "inherits": [
+        "ci-ccache",
+        "ci-debug",
+        "ci-win64",
+        "ci-clang-cl"
+      ]
+    },
+    {
+      "name": "ci-clang-cl-release",
+      "inherits": [
+        "ci-ccache",
+        "ci-release",
+        "ci-win64",
+        "ci-clang-cl"
+      ]
+    },
+    {
+      "name": "dev-distcc",
+      "hidden": true,
+      "environment": {
+        "PATH": "/usr/lib/distcc/:$penv{PATH}"
+      }
+    },
+    {
+      "name": "dev-gcc-debug-distcc",
+      "inherits": [
+        "ci-gcc-debug",
+        "dev-distcc"
+      ]
+    },
+    {
+      "name": "dev-clang-debug-distcc",
+      "inherits": [
+        "ci-clang-debug",
+        "dev-distcc"
+      ]
+    }
+  ]
+}

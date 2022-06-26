@@ -5,6 +5,9 @@ project(cxx20sql)
 set(CMAKE_CXX_STANDARD 20 )
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS OFF )
+
+find_package(ut REQUIRED ut)
+    
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options( -Wall -Werror )
 endif()
@@ -53,4 +56,5 @@ add_library(cxx20sql::cxx20sql ALIAS cxx20sql)
 
 add_executable(cxx20sqlm main.cpp)
 target_link_libraries( cxx20sqlm PRIVATE cxx20sql::cxx20sql )
+#target_link_libraries(main PRIVATE Boost::ut)
 install(TARGETS cxx20sqlm RUNTIME DESTINATION bin)
