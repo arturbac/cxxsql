@@ -88,6 +88,6 @@ namespace stralgo
     
     
   template <strconcept::char_type char_type, unsigned N>
-  consteval auto fs(char_type const (&str)[N])
+  consteval auto fs(char_type const (&str)[N]) noexcept
     { return basic_fixed_string<char_type, N-1>(str); }
 }

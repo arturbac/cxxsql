@@ -14,4 +14,21 @@ namespace cxxsql::detail
     {
     not_null, null
     };
+    
+  template<unsigned counter, typename Member, typename ...Members>
+  struct subclass_member_t
+    {
+    using member_type = Member;
+    using next_member_t = subclass_member_t<(counter+1), Members...>;
+    
+    static constexpr unsigned index() noexcept { return counter; }
+    };
+    
+  template<unsigned counter, typename Member>
+  struct subclass_member_t<counter,Member>
+    {
+    using member_type = Member;
+    using next_member_t = void;
+    static constexpr unsigned index() noexcept { return counter; }
+    };
 }

@@ -7,25 +7,7 @@
 
 namespace cxxsql
 {
-  namespace detail
-    {
-    template<unsigned counter, typename Member, typename ...Members>
-    struct subclass_member_t
-      {
-      using member_type = Member;
-      using next_member_t = subclass_member_t<(counter+1), Members...>;
-      
-      static constexpr unsigned index() noexcept { return counter; }
-      };
-      
-    template<unsigned counter, typename Member>
-    struct subclass_member_t<counter,Member>
-      {
-      using member_type = Member;
-      using next_member_t = void;
-      static constexpr unsigned index() noexcept { return counter; }
-      };
-    }
+
   // https://www.postgresql.org/docs/14/sql-createtable.html
   // options TEMPORARY | UNLOGGED
   namespace detail
@@ -64,7 +46,7 @@ namespace cxxsql
     
   template<typename ...Members>
     requires concepts::must_be_unqiue_column_name<Members...>
-  struct columns_t : public Members ...
+  struct table_elements_t : public Members ...
     {
     using record_type = std::tuple<typename Members::value_type ...>;
     };
@@ -85,7 +67,7 @@ namespace cxxsql
   
   template<table_name_t str, typename ...Members>
     requires concepts::must_be_unqiue_column_name<Members...>
-  struct table_t : public columns_t<Members ...>
+  struct table_t : public table_elements_t<Members ...>
     {
     using first_member_t = detail::subclass_member_t<0,Members...>;
     
