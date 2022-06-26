@@ -47,7 +47,7 @@ namespace cxxsql
     }
   
   template<typename ...Members>
-//  TODO contraint name unique or empty name   requires concepts::must_be_unqiue_column_name<Members...>
+//  TODO constraint name unique or empty name   requires concepts::must_be_unique_column_name<Members...>
   struct constraints_t : public Members ...
     {
     using first_member_t = detail::subclass_member_t<0,Members...>;
@@ -114,7 +114,7 @@ namespace cxxsql
     {
     using type = column_t<nm,dbtype,cstrs>;
     static constexpr detail::nullable_e nullable =  detail::null_constraint<cstrs>();
-    using db_type = detail::map_db_type<dbtype::underlaying_db_type(), dbtype::size(), nullable>;
+    using db_type = detail::map_db_type<dbtype::underlying_db_type(), dbtype::size(), nullable>;
     using value_type = typename db_type::type;
     using constraints = cstrs;
     

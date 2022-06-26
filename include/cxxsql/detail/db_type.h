@@ -15,7 +15,7 @@ namespace cxxsql::detail
   template<db_type_e dbtype, unsigned N = 0>
   struct db_type
     {
-    static constexpr db_type_e underlaying_db_type() noexcept { return dbtype; }
+    static constexpr db_type_e underlying_db_type() noexcept { return dbtype; }
     static constexpr bool is_array() noexcept { return N != 0; }
     static constexpr unsigned size() noexcept { return N; }
     };

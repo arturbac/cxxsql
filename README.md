@@ -83,17 +83,17 @@ cxx20sql/main.cpp:19:5: error: constraints not satisfied for class template 'tab
                    cxxsql::column_t<{{{105, 100, 0}}}, cxxsql::detail::db_type<cxxsql::detail::db_type_e::int16, 0>, cxxsql::detail::nullable_e::not_null>>]
     table_t<"test_table2",
     ^~~~~~~~~~~~~~~~~~~~~~
-cxx20sql/include/cxxsql/api.h:150:22: note: because 'concepts::must_be_unqiue_column_name<cxxsql::column_t<{{{105, 100, 0}}},
+cxx20sql/include/cxxsql/api.h:150:22: note: because 'concepts::must_be_unique_column_name<cxxsql::column_t<{{{105, 100, 0}}},
   cxxsql::detail::db_type<cxxsql::detail::db_type_e::int32, 0>, cxxsql::detail::nullable_e::not_null>,
   cxxsql::column_t<{{{105, 100, 0}}}, cxxsql::detail::db_type<cxxsql::detail::db_type_e::int16, 0>, cxxsql::detail::nullable_e::not_null> >'
    evaluated to false
-  requires concepts::must_be_unqiue_column_name<Members...>
+  requires concepts::must_be_unique_column_name<Members...>
                      ^
-cxx20sql/include/cxxsql/api.h:139:42: note: because 'detail::must_be_unqiue_column_name<cxxsql::column_t<{{{105, 100, 0}}},
+cxx20sql/include/cxxsql/api.h:139:42: note: because 'detail::must_be_unique_column_name<cxxsql::column_t<{{{105, 100, 0}}},
   cxxsql::detail::db_type<cxxsql::detail::db_type_e::int32, 0>, cxxsql::detail::nullable_e::not_null>, cxxsql::column_t<{{{105, 100, 0}}},
   cxxsql::detail::db_type<cxxsql::detail::db_type_e::int16, 0>, cxxsql::detail::nullable_e::not_null> >()'
    evaluated to false
-    concept must_be_unqiue_column_name = detail::must_be_unqiue_column_name<Members...>();
+    concept must_be_unique_column_name = detail::must_be_unique_column_name<Members...>();
 ```
 ## todos
 
