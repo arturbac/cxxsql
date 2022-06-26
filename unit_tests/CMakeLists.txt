@@ -18,11 +18,11 @@ function(add_compile_test_common HEADER_FILE_NAME EXPECT_FAIL)
   set( SOURCE_FILE_NAME test_${TEST_NAME}.cc )
   set( GEN_SOURCE_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/${SOURCE_FILE_NAME} )
   
-  file(WRITE ${GEN_SOURCE_FILE_NAME} "#include <${HEADER_FILE_NAME}.h>\nint main( int argc, char ** argv ) {return cxxsql::${HEADER_FILE_NAME}_unit_tests() ? EXIT_SUCCESS : EXIT_FAILURE; }\n" )
+  file(WRITE ${GEN_SOURCE_FILE_NAME} "#include <${HEADER_FILE_NAME}.h>\nint main( int argc, char ** argv )\n {return cxxsql::${HEADER_FILE_NAME}_unit_tests() ? EXIT_SUCCESS : EXIT_FAILURE; }\n" )
   
   add_executable(${TEST_NAME}_cxx20 ${GEN_SOURCE_FILE_NAME})
   target_link_libraries(${TEST_NAME}_cxx20 PRIVATE cxxsql::cxxsql )
-  #target_compile_options(${TEST_NAME} PRIVATE -std=c++20 )
+
   target_include_directories(${TEST_NAME}_cxx20 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/header_only )
   set_target_properties(${TEST_NAME}_cxx20 PROPERTIES
                       EXCLUDE_FROM_ALL TRUE
