@@ -50,11 +50,6 @@ add_library(cxxsql INTERFACE)
 
 target_include_directories(cxxsql INTERFACE include )
 add_library(cxxsql::cxxsql ALIAS cxxsql)
-#target_sources(cxx20sql INTERFACE
-  #FILE_SET HEADERS
-    #BASE_DIRS src
-    #FILES include/
-#)
 
 add_executable(cxxsqlm main.cpp)
 target_link_libraries( cxxsqlm PRIVATE cxxsql::cxxsql )

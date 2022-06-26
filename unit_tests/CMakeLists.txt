@@ -43,9 +43,8 @@ function(add_fail_compile_test HEADER_FILE_NAME )
   add_compile_test_common( ${HEADER_FILE_NAME} TRUE)
 endfunction()
 
-function(add_runtime_test SOURCE_FILE_NAME )
-  get_filename_component(TEST_NAME ${SOURCE_FILE_NAME} NAME_WE)
-  set( SOURCE_FILE_NAME test_${TEST_NAME}.cc )
+function(add_runtime_test TEST_NAME )
+  set( SOURCE_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/runtime/${TEST_NAME}.cc )
   
   add_executable(${TEST_NAME} ${SOURCE_FILE_NAME})
   target_link_libraries( ${TEST_NAME} 
