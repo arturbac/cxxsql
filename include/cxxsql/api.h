@@ -49,6 +49,7 @@ namespace cxxsql
   struct table_elements_t : public Members ...
     {
     using record_type = std::tuple<typename Members::value_type ...>;
+    using first_member_t = detail::subclass_member_t<0,Members...>;
     };
   
   namespace detail
@@ -69,8 +70,6 @@ namespace cxxsql
     requires concepts::must_be_unqiue_column_name<Members...>
   struct table_t : public table_elements_t<Members ...>
     {
-    using first_member_t = detail::subclass_member_t<0,Members...>;
-    
     static constexpr auto name() noexcept { return str; }
     };
     
