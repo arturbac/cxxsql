@@ -31,7 +31,7 @@ function(add_compile_test_common HEADER_FILE_NAME EXPECT_FAIL)
          COMMAND ${CMAKE_COMMAND} --build . --target ${TEST_NAME}_cxx20 --config $<CONFIGURATION>
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
   if(EXPECT_FAIL)
-    set_tests_properties(${TEST_NAME}_cxx20 PROPERTIES WILL_FAIL TRUE)
+    set_tests_properties(${TEST_NAME} PROPERTIES WILL_FAIL TRUE)
   endif()
 endfunction()
 
@@ -58,7 +58,7 @@ function(add_runtime_test TEST_NAME )
 endfunction()
 
 add_compile_test( table_decl )
-add_compile_test( fail_table_decl )
+add_fail_compile_test( fail_table_decl )
 set_tests_properties(fail_table_decl PROPERTIES DEPENDS "table_decl")
 
 set_tests_properties(table_decl   PROPERTIES FIXTURES_SETUP syntax_decl )
