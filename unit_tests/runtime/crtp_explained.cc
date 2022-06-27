@@ -93,46 +93,49 @@ public:
 
 namespace cxxsql
 {
-  connection_handle::~connection_handle() noexcept
+ 
+  namespace concepts
     {
-    switch( backend_ )
-      {
-      case backends_e::pgsql:
-        static_cast<cxxsql::pgsql::connection_t *>(this)->free_resources();
-        break;
-      case backends_e::sqlite:
-        break;
-      case backends_e::destroyed:
-        break;
-      }
+    template<typename maybe_handle>
+    concept connection_handle = std::same_as<connection_handle, std::remove_cv_t<maybe_handle>>;
     }
-  bool connection_handle::open( std::string_view args ) noexcept
-    {
-    switch( backend_ )
-      {
-      case backends_e::pgsql:
-        return static_cast<cxxsql::pgsql::connection_t *>(this)->open(args);
-      case backends_e::sqlite:
-        break;
-      case backends_e::destroyed:
-        break;
-      }
-    return false;
-    }
-    
-  //or as a function
-  inline bool open(connection_handle & handle, std::string_view args ) noexcept
+  
+  template<typename return_type, bool is_noexcept, concepts::connection_handle maybe_handle, typename lambda>
+  inline return_type dispatch( maybe_handle & handle, lambda const & op ) noexcept(is_noexcept)
     {
     switch( handle.backend_ )
       {
       case backends_e::pgsql:
-        return static_cast<cxxsql::pgsql::connection_t *>(&handle)->open(args);
-      case backends_e::sqlite:
-        break;
-      case backends_e::destroyed:
-        break;
+        return op( *static_cast<cxxsql::pgsql::connection_t *>(&handle) );
+       case backends_e::sqlite:
+//         return op( *static_cast<cxxsql::pgsql::connection_t *>(&handle) );
+         break;
+       case backends_e::destroyed:
+//         return op( *static_cast<cxxsql::pgsql::connection_t *>(&handle) );
+         break;
       }
-    return false;
+    if constexpr( std::is_same_v<void,return_type>)
+      return;
+    else
+      return return_type{};
+    }
+    
+  connection_handle::~connection_handle() noexcept
+    {
+    dispatch<void,true>(*this,[](auto & promoted)
+                                  { promoted.free_resources(); });
+    }
+    
+  bool connection_handle::open( std::string_view args ) noexcept
+    {
+    return dispatch<bool,true>(*this,[args](auto & promoted)
+                                  { return promoted.open(args); });
+    }
+  //or as a function
+  inline bool open(connection_handle & handle, std::string_view args ) noexcept
+    {
+    return dispatch<bool,true>(handle,[args](auto & promoted)
+                                  { return promoted.open(args); });
     }
 }
 
