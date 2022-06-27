@@ -50,7 +50,12 @@ function(add_runtime_test TEST_NAME )
   add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME}_cxx20_rt )
 endfunction()
 
+add_compile_test( column_constraints )
+set_tests_properties(column_constraints   PROPERTIES FIXTURES_SETUP syntax_decl )
+
 add_compile_test( table_decl )
+set_tests_properties(table_decl PROPERTIES DEPENDS column_constraints )
+
 add_fail_compile_test( fail_table_decl )
 set_tests_properties(fail_table_decl PROPERTIES DEPENDS table_decl )
 
@@ -61,5 +66,5 @@ add_runtime_test( create_table )
 set_tests_properties(create_table PROPERTIES FIXTURES_REQUIRED syntax_decl)
 
 add_runtime_test( crtp_explained )
-set_tests_properties(crtp_explained PROPERTIES FIXTURES_REQUIRED syntax_decl)
+
 

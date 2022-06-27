@@ -6,7 +6,7 @@ namespace cxxsql
 {
 
 [[nodiscard]]
-constexpr bool table_decl_unit_tests() noexcept
+consteval bool table_decl_unit_tests() noexcept
   {
   using test_table_t = 
     table_t<"test_table",

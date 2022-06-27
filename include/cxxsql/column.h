@@ -46,15 +46,32 @@ namespace cxxsql
     using unique = constraint<"UNIQUE">;
     }
   
+  namespace detail
+    {
+    struct contraint_list_tag;
+    }
+  namespace concepts
+    {
+    template<typename T>
+    concept constraint_list = 
+    requires
+      {
+      typename T::tag;
+      std::same_as<typename T::tag, detail::contraint_list_tag>;
+      };
+    }
+    
   template<typename ...Members>
 //  TODO constraint name unique or empty name   requires concepts::must_be_unique_column_name<Members...>
   struct constraints_t : public Members ...
     {
+    using tag = detail::contraint_list_tag;
     using first_member_t = detail::subclass_member_t<0,Members...>;
     };
     
   namespace detail
     {
+    
     /// iterate over constraints and find for specified constraint
     template<typename constraint, typename MemberEnumerator>
     constexpr auto find_column_constraint() noexcept
@@ -74,13 +91,13 @@ namespace cxxsql
         return false;
       }
 
-    template<typename cstrs, typename cstr>
+    template<concepts::constraint_list cstrs, typename cstr>
     consteval bool has_constraint()
       {
       return find_column_constraint<cstr, typename cstrs::first_member_t>();
       }
     
-    template<typename cstrs>
+    template<concepts::constraint_list cstrs>
     consteval detail::nullable_e null_constraint() noexcept
       {
       constexpr bool has_not_null { has_constraint<cstrs,constraints::not_null>() };
