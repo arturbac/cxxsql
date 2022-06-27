@@ -111,7 +111,6 @@ namespace cxxsql
 //         return op( *static_cast<cxxsql::pgsql::connection_t *>(&handle) );
          break;
        case backends_e::destroyed:
-//         return op( *static_cast<cxxsql::pgsql::connection_t *>(&handle) );
          break;
       }
     if constexpr( std::is_same_v<void,return_type>)
