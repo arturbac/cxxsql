@@ -134,10 +134,18 @@ namespace cxxsql
   //   REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ]
   //     [ ON DELETE referential_action ] [ ON UPDATE referential_action ] }
   // [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
-  
+  namespace concepts
+    {
+    template<typename cstrs>
+    concept valid_column_constraints = requires 
+      {
+      requires concepts::constraint_list<cstrs>;
+      requires concepts::unique_nullability<cstrs>;
+      };
+    }
   template<column_name nm,
            typename dbtype,
-           concepts::constraint_list cstrs = constraints_t<constraints::not_null>
+           concepts::valid_column_constraints cstrs = constraints_t<constraints::not_null>
            >
   struct column_t
     {
