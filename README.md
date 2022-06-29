@@ -95,6 +95,35 @@ cxx20sql/include/cxxsql/api.h:139:42: note: because 'detail::must_be_unique_colu
    evaluated to false
     concept must_be_unique_column_name = detail::must_be_unique_column_name<Members...>();
 ```
+
+ - constraint on column sql constraints like null/not_null, prevents invalid table declaration
+ 
+```C++
+#include <cxxsql/api.h>
+  
+using test_table_t = 
+  table_t<"test_table",
+    column_t<"id", int32<>, constraints_t<constraints::not_null,
+                                          constraints::primary_key,
+                                          constraints::null>>
+    >;
+```
+
+```bash
+unit_tests/header_only/fail_column_constraints.h:13:7: error: constraints not satisfied for class template 'column_t' [with nm = {{{{105, 100, 0}}}}, dbtype = cxxsql::detail::db_type<cxxsql::detail::db_type_e::int32, 0>, cstrs = cxxsql::constraints_t<cxxsql::constraint<{{78, 79, 84, 32, 78, 85, 76, 76, 0}}, {{{{0}}}}>, cxxsql::constraint<{{80, 82, 73, 77, 65, 82, 89, 32, 75, 69, ...}}, {{{{0}}}}>, cxxsql::constraint<{{78, 85, 76, 76, 0}}, {{{{0}}}}>>]
+      column_t<"id", int32<>, constraints_t<constraints::not_null,
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cxxsql/column.h:148:22: note: because 'cxxsql::constraints_t<cxxsql::constraint<{{78, 79, 84, 32, 78, 85, 76, 76, 0}}, {{{{0}}}}>, cxxsql::constraint<{{80, 82, 73, 77, 65, 82, 89, 32, 75, 69, ...}}, {{{{0}}}}>, cxxsql::constraint<{{78, 85, 76, 76, 0}}, {{{{0}}}}>>' does not satisfy 'valid_column_constraints'
+           concepts::valid_column_constraints cstrs = constraints_t<constraints::not_null>
+                     ^
+cxxsql/column.h:143:26: note: because 'cxxsql::constraints_t<cxxsql::constraint<{{78, 79, 84, 32, 78, 85, 76, 76, 0}}, {{{{0}}}}>, cxxsql::constraint<{{80, 82, 73, 77, 65, 82, 89, 32, 75, 69, ...}}, {{{{0}}}}>, cxxsql::constraint<{{78, 85, 76, 76, 0}}, {{{{0}}}}>>' does not satisfy 'unique_nullability'
+      requires concepts::unique_nullability<cstrs>;
+                         ^
+cxxsql/column.h:107:16: note: because 'detail::has_constraint<cxxsql::constraints_t<cxxsql::constraint<{{78, 79, 84, 32, 78, 85, 76, 76, 0}}, {{{{0}}}}>, cxxsql::constraint<{{80, 82, 73, 77, 65, 82, 89, 32, 75, 69, ...}}, {{{{0}}}}>, cxxsql::constraint<{{78, 85, 76, 76, 0}}, {{{{0}}}}> >, constraints::not_null>() != detail::has_constraint<cxxsql::constraints_t<cxxsql::constraint<{{78, 79, 84, 32, 78, 85, 76, 76, 0}}, {{{{0}}}}>, cxxsql::constraint<{{80, 82, 73, 77, 65, 82, 89, 32, 75, 69, ...}}, {{{{0}}}}>, cxxsql::constraint<{{78, 85, 76, 76, 0}}, {{{{0}}}}> >, constraints::null>()' (1 != 1) evaluated to false
+      requires detail::has_constraint<cstrs,constraints::not_null>() !=  detail::has_constraint<cstrs,constraints::null>();
+               ^
+```
+
 ## todos
 
  - compile time sql syntax generators (psql/mssql/slite)
