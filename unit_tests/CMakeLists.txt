@@ -59,6 +59,9 @@ set_tests_properties(table_decl PROPERTIES DEPENDS column_constraints )
 add_fail_compile_test( fail_table_decl )
 set_tests_properties(fail_table_decl PROPERTIES DEPENDS table_decl )
 
+add_fail_compile_test(fail_column_constraints )
+set_tests_properties(fail_column_constraints PROPERTIES DEPENDS table_decl )
+
 set_tests_properties(table_decl   PROPERTIES FIXTURES_SETUP syntax_decl )
 set_tests_properties(fail_table_decl   PROPERTIES FIXTURES_SETUP syntax_decl )
 
