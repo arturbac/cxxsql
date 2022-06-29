@@ -92,17 +92,29 @@ namespace cxxsql
       }
 
     template<concepts::constraint_list cstrs, typename cstr>
-    consteval bool has_constraint()
+    consteval bool has_constraint() noexcept
       {
       return find_column_constraint<cstr, typename cstrs::first_member_t>();
       }
+    }
     
-    template<concepts::constraint_list cstrs>
+  namespace concepts
+    {
+    template<typename cstrs>
+    concept unique_nullability = requires 
+      {
+      requires concepts::constraint_list<cstrs>;
+      requires detail::has_constraint<cstrs,constraints::not_null>() !=  detail::has_constraint<cstrs,constraints::null>();
+      requires detail::has_constraint<cstrs,constraints::not_null>() ||  detail::has_constraint<cstrs,constraints::null>();
+      };
+    }
+    
+  namespace detail
+    {
+    template<concepts::unique_nullability cstrs>
     consteval detail::nullable_e null_constraint() noexcept
       {
       constexpr bool has_not_null { has_constraint<cstrs,constraints::not_null>() };
-      constexpr bool has_null { has_constraint<cstrs,constraints::null>() };
-      static_assert( has_not_null != has_null );
       return has_not_null ? detail::nullable_e::not_null : detail::nullable_e::null;
       }
     }
@@ -125,7 +137,7 @@ namespace cxxsql
   
   template<column_name nm,
            typename dbtype,
-           typename cstrs = constraints_t<constraints::not_null>
+           concepts::constraint_list cstrs = constraints_t<constraints::not_null>
            >
   struct column_t
     {
