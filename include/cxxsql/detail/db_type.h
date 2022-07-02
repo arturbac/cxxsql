@@ -8,19 +8,20 @@
 #include <vector>
 #include <optional>
 
+
 namespace cxxsql::detail
 {
   using stralgo::basic_fixed_string;
   
-  template<db_type_e dbtype, unsigned N = 0>
+  template<auto dbtype, unsigned N = 0>
   struct db_type
     {
-    static constexpr db_type_e underlying_db_type() noexcept { return dbtype; }
+    static constexpr auto underlying_db_type() noexcept { return dbtype; }
     static constexpr bool is_array() noexcept { return N != 0; }
     static constexpr unsigned size() noexcept { return N; }
     };
     
-  template<db_type_e dbtype, unsigned N, nullable_e nullable>
+  template<auto dbtype, unsigned N, nullable_e nullable>
   struct map_db_type  {};
   
   template<>
@@ -81,9 +82,9 @@ namespace cxxsql::detail
     static constexpr basic_fixed_string db_string {
       stralgo::concat_fixed_string(
         related_type::db_string,
-        basic_fixed_string("["),
+        basic_fixed_string("("),
         strconv::integral_to_string<N>(),
-        basic_fixed_string("]")
+        basic_fixed_string(")")
       )
       
     };
@@ -97,6 +98,6 @@ namespace cxxsql::detail
     static constexpr basic_fixed_string db_string { related_type::db_string };
     };
   
-  template<db_type_e dbtype, unsigned N, nullable_e nullable>
+  template<auto dbtype, unsigned N, nullable_e nullable>
   using map_db_type_t = typename map_db_type<dbtype, N, nullable>::type;
 }

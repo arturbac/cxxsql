@@ -4,8 +4,6 @@
 
 namespace cxxsql
 {
-  inline constexpr auto null = detail::nullable_e::null;
-  inline constexpr auto not_null = detail::nullable_e::not_null;
 
   template<unsigned N = 0>
   using char8 = detail::db_type<detail::db_type_e::char8, N>;

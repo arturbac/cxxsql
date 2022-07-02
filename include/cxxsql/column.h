@@ -118,6 +118,10 @@ namespace cxxsql
       return has_not_null ? detail::nullable_e::not_null : detail::nullable_e::null;
       }
     }
+  //https://www.sqlite.org/lang_createtable.html
+  
+  //https://www.sqlite.org/syntax/column-def.html
+  //https://www.postgresql.org/docs/current/datatype.html
   //column_name data_type [ COMPRESSION compression_method ] [ COLLATE collation ] [ column_constraint [ ... ] ]
   
   // where column_constraint is:
