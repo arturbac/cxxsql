@@ -8,10 +8,26 @@ set(CMAKE_CXX_STANDARD 20 )
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS OFF )
 
-find_package(ut REQUIRED ut)
-#find_package(small_vectors  REQUIRED)
-find_package(PostgreSQL REQUIRED)
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
+include(FetchContent)
+FetchContent_Declare(
+  small_vectors
+  GIT_REPOSITORY https://github.com/arturbac/small_vectors.git
+  GIT_TAG        0eb3b429d1d0e93a4c80b4f1d4afd0cc5f9a7403
+)
+FetchContent_Declare(
+  ut
+  GIT_REPOSITORY https://github.com/boost-ext/ut.git
+  GIT_TAG        master
+)
+#
+
+FetchContent_MakeAvailable(small_vectors)
+FetchContent_MakeAvailable(ut)
+
+#find_package(ut ut)
+#find_package(small_vectors)
+find_package(PostgreSQL )
+find_package(SQLite3)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options( -Wall -Werror )
@@ -61,7 +77,7 @@ add_library(cxxsql::cxxsql ALIAS cxxsql)
 add_executable(cxxsqlm main.cpp)
 target_link_libraries( cxxsqlm 
   PRIVATE cxxsql::cxxsql 
-    unofficial::sqlite3::sqlite3
+    SQLite::SQLite3
     PostgreSQL::PostgreSQL
   )
 
