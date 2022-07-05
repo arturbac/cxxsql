@@ -12,7 +12,7 @@ include(FetchContent)
 FetchContent_Declare(
   small_vectors
   GIT_REPOSITORY https://github.com/arturbac/small_vectors.git
-  GIT_TAG        0eb3b429d1d0e93a4c80b4f1d4afd0cc5f9a7403
+  GIT_TAG        master
 )
 FetchContent_Declare(
   ut
@@ -24,8 +24,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(small_vectors)
 FetchContent_MakeAvailable(ut)
 
-#find_package(ut ut)
-#find_package(small_vectors)
 find_package(PostgreSQL )
 find_package(SQLite3)
 
