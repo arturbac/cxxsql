@@ -2,7 +2,14 @@
   "name": "cxxsql",
   "version": "1.0.0",
   "dependencies": [
-    "ut"
-  ],
-  "builtin-baseline": "b49b2bdf22559c89eddbf29a29621a1dc6929320"
+    "ut",
+    {
+      "name": "libpq",
+      "platform": "!x86"
+    },
+    {
+      "name": "sqlite3",
+      "platform": "!x86"
+    }
+  ]
 }

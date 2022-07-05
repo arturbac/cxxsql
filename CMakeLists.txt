@@ -9,7 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS OFF )
 
 find_package(ut REQUIRED ut)
-    
+#find_package(small_vectors  REQUIRED)
+find_package(PostgreSQL REQUIRED)
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options( -Wall -Werror )
 endif()
@@ -46,13 +49,21 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
   endif()
 endif()
 
-add_library(cxxsql INTERFACE)
+add_library(cxxsql)
+target_sources(cxxsql 
+  PRIVATE
+    src/pgsql/connection.cc 
+)
 
-target_include_directories(cxxsql INTERFACE include )
+target_include_directories(cxxsql PUBLIC include )
 add_library(cxxsql::cxxsql ALIAS cxxsql)
 
 add_executable(cxxsqlm main.cpp)
-target_link_libraries( cxxsqlm PRIVATE cxxsql::cxxsql )
+target_link_libraries( cxxsqlm 
+  PRIVATE cxxsql::cxxsql 
+    unofficial::sqlite3::sqlite3
+    PostgreSQL::PostgreSQL
+  )
 
 add_subdirectory(unit_tests)
 

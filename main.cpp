@@ -32,7 +32,9 @@ static constexpr auto create_statement_test_table = create_table_statement<test_
 using test_table_pgsql_t = 
     table_t<"test_table_pgsql",
       column_t<"id",    pgsql::serial<>, cc<not_null,primary_key>>,
-      column_t<"name",  char8<3>>
+      column_t<"name",  char8<3>>,
+      column_t<"foatval",  pgsql::double_precision<>>,
+      column_t<"boolval",  pgsql::boolean<>>
       >;
       
 static constexpr auto create_statement_test_table_pgsql = create_table_statement<test_table_pgsql_t>();

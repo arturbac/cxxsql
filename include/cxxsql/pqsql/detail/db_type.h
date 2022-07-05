@@ -26,6 +26,20 @@ namespace cxxsql::detail
     static constexpr basic_fixed_string db_string {"bigserial"};
     };
     
+  template<>
+  struct map_db_type<cxxsql::pgsql::detail::db_type_e::boolean, 0, nullable_e::not_null>
+    { 
+    using type = bool;
+    static constexpr basic_fixed_string db_string {"boolean"};
+    };
+    
+  template<>
+  struct map_db_type<cxxsql::pgsql::detail::db_type_e::double_precision, 0, nullable_e::not_null>
+    { 
+    using type = double;
+    static constexpr basic_fixed_string db_string {"double"};
+    };
+    
   template<cxxsql::pgsql::detail::db_type_e dbtype, unsigned N>
   struct map_db_type<dbtype, N, nullable_e::null> 
     {
