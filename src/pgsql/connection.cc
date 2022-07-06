@@ -1,7 +1,6 @@
 #include <cxxsql/pqsql/connection.h>
 #include <cxxsql/detail/core_db_functionality.h>
 #include <coll/small_vector.h>
-#include <vector>
 #include <algorithm>
 #include <string>
 #include <numeric>
@@ -70,8 +69,8 @@ connection_t open( open_params_type params ) noexcept
                     { return init + kvp.first.size() + kvp.second.size(); }) };
 
     // render strings in table
-    std::vector<char> keys_values(total_chars);
-    std::vector<char const *> keys_values_ptrs;
+    coll::small_vector<char,uint32_t,1024u> keys_values(total_chars);
+    coll::small_vector<char const *,uint8_t,16> keys_values_ptrs;
     keys_values_ptrs.resize(args_count<<1);
     
     auto const it_beg_ok{ std::begin(keys_values_ptrs) };
