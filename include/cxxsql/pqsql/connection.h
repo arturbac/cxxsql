@@ -22,7 +22,9 @@ private:
   std::unique_ptr<pimpl_t> resource_;
   
 public:
-  explicit operator bool() const noexcept { return static_cast<bool>(resource_); }
+  
+  [[nodiscard]]
+  explicit operator bool() const noexcept;
   
   connection_t() noexcept 
     : connection_base<connection_t>{ backends_e::destroyed }

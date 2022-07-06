@@ -19,7 +19,6 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/boost-ext/ut.git
   GIT_TAG        master
 )
-#
 
 FetchContent_MakeAvailable(small_vectors)
 FetchContent_MakeAvailable(ut)
@@ -72,6 +71,13 @@ target_sources(cxxsql
 target_include_directories(cxxsql PUBLIC include )
 add_library(cxxsql::cxxsql ALIAS cxxsql)
 
+target_link_libraries( cxxsql
+  PRIVATE 
+    small_vectors::small_vectors
+    SQLite::SQLite3
+    PostgreSQL::PostgreSQL
+  )
+  
 add_executable(cxxsqlm main.cpp)
 target_link_libraries( cxxsqlm 
   PRIVATE cxxsql::cxxsql 

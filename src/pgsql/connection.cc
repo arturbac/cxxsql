@@ -1,5 +1,6 @@
 #include <cxxsql/pqsql/connection.h>
 #include <cxxsql/detail/core_db_functionality.h>
+#include <coll/small_vector.h>
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -37,6 +38,11 @@ connection_t::connection_t( pimpl_t const & res ) noexcept
   *connection_data(resource_data_) = res;
   }
   
+connection_t::operator bool() const noexcept
+  {
+    
+  }
+
 connection_t::connection_t( connection_t && rh ) noexcept
     : cxxsql::detail::connection_base<connection_t>( std::move(rh) )
   {
