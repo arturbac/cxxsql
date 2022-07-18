@@ -20,7 +20,12 @@ static connection_t::pimpl_t *
 connection_data(std::byte * resource_data_ ) noexcept
    { return std::assume_aligned<alignof(connection_t::pimpl_t)>(
                std::launder(reinterpret_cast<connection_t::pimpl_t *>(&resource_data_))); }
-   
+
+static connection_t::pimpl_t const *
+connection_data(std::byte const * resource_data_ ) noexcept
+   { return std::assume_aligned<alignof(connection_t::pimpl_t)>(
+               std::launder(reinterpret_cast<connection_t::pimpl_t const *>(&resource_data_))); }
+
 void connection_t::free_resources() noexcept
   {
   if(resource_ )
@@ -39,7 +44,13 @@ connection_t::connection_t( pimpl_t const & res ) noexcept
   
 connection_t::operator bool() const noexcept
   {
-    
+  auto const & data{ *connection_data(resource_data_) };
+  if(data.con)
+    {
+    ConnStatusType const status{ PQstatus(data.con) };
+    return CONNECTION_OK == status;
+    }
+  return false;
   }
 
 connection_t::connection_t( connection_t && rh ) noexcept
@@ -69,9 +80,9 @@ connection_t open( open_params_type params ) noexcept
                     { return init + kvp.first.size() + kvp.second.size(); }) };
 
     // render strings in table
-    coll::small_vector<char,uint32_t,1024u> keys_values(total_chars);
+    coll::small_vector<char,uint32_t,1024u> keys_values(static_cast<uint32_t>(total_chars));
     coll::small_vector<char const *,uint8_t,16> keys_values_ptrs;
-    keys_values_ptrs.resize(args_count<<1);
+    keys_values_ptrs.resize(static_cast<uint8_t>(args_count<<1u));
     
     auto const it_beg_ok{ std::begin(keys_values_ptrs) };
     auto it_ok{ it_beg_ok };
@@ -94,13 +105,9 @@ connection_t open( open_params_type params ) noexcept
     char const * const * const keywords{ &*it_beg_ok };
     char const * const * const values{ &*it_beg_ov };
     PGconn * pgcon{ PQconnectdbParams(keywords, values, expand_dbname) };
-    ConnStatusType const status{ PQstatus(pgcon) };
-    if(CONNECTION_OK == status )
-      {
-      using pimpl_t = connection_t::pimpl_t;
-      connection_t conn{ pimpl_t{ .con=pgcon } };
-      return conn;
-      }
+    using pimpl_t = connection_t::pimpl_t;
+    connection_t conn{ pimpl_t{ .con=pgcon } };
+    return conn;
     }
   return {};
   }
