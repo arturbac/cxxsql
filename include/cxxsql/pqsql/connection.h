@@ -19,7 +19,6 @@ public:
 private:
   alignas(void *)
   std::byte resource_data_[sizeof(void *)];
-  std::unique_ptr<pimpl_t> resource_;
   
 public:
   
@@ -39,7 +38,9 @@ public:
   connection_t & operator =( connection_t && ) noexcept;
   
   ~connection_t() noexcept { free_resources(); }
-    
+
+  void close() noexcept { free_resources(); }
+
 protected:
   void free_resources() noexcept;
 
@@ -47,5 +48,7 @@ protected:
   
   
   using open_params_type = std::span<std::pair<std::string_view, std::string_view>>;
+
   connection_t open( open_params_type params ) noexcept;
+  inline void close(connection_t & conn) noexcept { conn.close(); }
 }

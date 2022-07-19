@@ -28,10 +28,11 @@ connection_data(std::byte const * resource_data_ ) noexcept
 
 void connection_t::free_resources() noexcept
   {
-  if(resource_ )
+  auto & data{ *connection_data(resource_data_) };
+  if(data.con )
     {
-    PQfinish(resource_->con);
-    resource_.reset();
+    PQfinish(data.con);
+    data.con = nullptr;
     }
   backend_ = backends_e::destroyed;
   }
@@ -111,4 +112,5 @@ connection_t open( open_params_type params ) noexcept
     }
   return {};
   }
+
 }
