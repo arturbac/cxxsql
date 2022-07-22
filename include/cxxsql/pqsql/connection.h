@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cxxsql/detail/connection_handle.h>
-
+#include <cxxsql/detail/core_db_functionality.h>
+#include <cxxsql/pqsql/detail/error_condition.h>
 #include <string_view>
 #include <span>
 #include <memory>
@@ -21,10 +22,16 @@ private:
   std::byte resource_data_[sizeof(void *)];
   
 public:
-  
+  [[nodiscard]]
+  pimpl_t & pimpl() noexcept;
+
+  [[nodiscard]]
+  pimpl_t const & pimpl() const noexcept;
+
   [[nodiscard]]
   explicit operator bool() const noexcept;
-  
+  detail::error_condition status() const noexcept;
+
   connection_t() noexcept 
     : connection_base<connection_t>{ backends_e::destroyed }
   {}
@@ -47,8 +54,11 @@ protected:
   };
   
   
-  using open_params_type = std::span<std::pair<std::string_view, std::string_view>>;
-
+  using open_params_type = std::span<const std::pair<std::string_view, std::string_view>>;
+  ///\brief opens connection
+  ///\param params span of pair of parameters accepeted by postgresql https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
+  ///\returns connection instance
   connection_t open( open_params_type params ) noexcept;
+
   inline void close(connection_t & conn) noexcept { conn.close(); }
 }

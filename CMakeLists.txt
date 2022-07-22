@@ -48,6 +48,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
       -Wno-pre-c++14-compat
       -Wno-c++20-compat
       -Wno-pre-c++20-compat-pedantic
+      -Wno-c++98-compat-pedantic
       -Wno-unused-parameter
       -Wno-padded
       -Wno-unused-command-line-argument

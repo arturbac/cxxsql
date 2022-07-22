@@ -1,6 +1,9 @@
 #include <cxxsql/api.h>
 #include <cxxsql/pqsql/db_data_types.h>
+#include <cxxsql/pqsql/connection.h>
+
 #include <iostream>
+#include <array>
 
 namespace cxxsql
 {
@@ -60,5 +63,26 @@ int main(int argc, char const * const * argv)
   
   std::cout << "|" << tst_conv.view() << "|" << std::endl;
 //   __builtin_dump_struct(&rec, &printf);
+  using std::string_view_literals::operator""sv;
+
+  constexpr std::array open_params{
+              std::pair{"host"sv,"localhost"sv},
+              std::pair{"port"sv,"5432"sv},
+              std::pair{"dbname"sv,"postgres"sv},
+              std::pair{"user"sv,"postgres"sv}
+          };
+    {
+    cxxsql::pgsql::connection_t conn{cxxsql::pgsql::open( open_params)};
+
+    if(conn)
+      {
+        std::cout << "Connected " <<std::endl;
+      }
+    else
+      {
+      auto status { conn.status() };
+      std::cout << "Not connected "<< status.message() << " " << status.description() <<std::endl;
+      }
+    }
   return 0;
 }

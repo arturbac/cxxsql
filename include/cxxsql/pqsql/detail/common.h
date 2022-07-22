@@ -22,7 +22,9 @@ namespace cxxsql::pgsql::detail
     uuid,
     xml
     };
+
 }
+
 namespace cxxsql::detail
 {
   template<>
@@ -31,4 +33,6 @@ namespace cxxsql::detail
     static constexpr backend_e backend_enum = backend_e::pqsql;
     using db_type_enum = pgsql::detail::db_type_e;
     };
+
+
 }

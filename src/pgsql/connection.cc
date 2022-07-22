@@ -1,4 +1,6 @@
 #include <cxxsql/pqsql/connection.h>
+#include <cxxsql/pqsql/detail/error_condition.h>
+#include <cxxsql/detail/pragmas.h>
 #include <cxxsql/detail/core_db_functionality.h>
 #include <coll/small_vector.h>
 #include <algorithm>
@@ -7,9 +9,28 @@
 #include <libpq-fe.h>
 #include <utility>
 
+namespace cxxsql::pgsql::detail
+{
+  struct pgsql_category_t final : public std::error_category
+    {
+    char const * name() const noexcept override { return "pgsql_category"; }
+    std::string message(int) const override { return "postgresql error codes"; }
+    ~pgsql_category_t() override;
+    };
+  pgsql_category_t::~pgsql_category_t(){}
+
+PRAGMA_CLANG_WARNING_PUSH_OFF(-Wexit-time-destructors)
+PRAGMA_CLANG_WARNING_OFF(-Wglobal-constructors)
+  static pgsql_category_t pgsql_category_{};
+PRAGMA_CLANG_WARNING_POP
+
+  std::error_category const & pgsql_category() noexcept
+    { return pgsql_category_; }
+}
+
 namespace cxxsql::pgsql
 {
-  
+
 struct connection_t::pimpl_t
 {
   PGconn * con;
@@ -19,16 +40,25 @@ struct connection_t::pimpl_t
 static connection_t::pimpl_t *
 connection_data(std::byte * resource_data_ ) noexcept
    { return std::assume_aligned<alignof(connection_t::pimpl_t)>(
-               std::launder(reinterpret_cast<connection_t::pimpl_t *>(&resource_data_))); }
+               std::launder(reinterpret_cast<connection_t::pimpl_t *>(resource_data_))); }
 
 static connection_t::pimpl_t const *
 connection_data(std::byte const * resource_data_ ) noexcept
    { return std::assume_aligned<alignof(connection_t::pimpl_t)>(
-               std::launder(reinterpret_cast<connection_t::pimpl_t const *>(&resource_data_))); }
+               std::launder(reinterpret_cast<connection_t::pimpl_t const *>(resource_data_))); }
+
+connection_t::pimpl_t & connection_t::pimpl() noexcept
+  {
+  return *connection_data(resource_data_);
+  }
+connection_t::pimpl_t const & connection_t::pimpl() const noexcept
+  {
+  return *connection_data(resource_data_);
+  }
 
 void connection_t::free_resources() noexcept
   {
-  auto & data{ *connection_data(resource_data_) };
+  auto & data{ pimpl() };
   if(data.con )
     {
     PQfinish(data.con);
@@ -40,12 +70,13 @@ void connection_t::free_resources() noexcept
 connection_t::connection_t( pimpl_t const & res ) noexcept 
     : connection_base<connection_t>{ backends_e::pgsql }
   {
-  *connection_data(resource_data_) = res;
+  auto & data = pimpl();
+  data = res;
   }
   
 connection_t::operator bool() const noexcept
   {
-  auto const & data{ *connection_data(resource_data_) };
+  auto const & data{ pimpl() };
   if(data.con)
     {
     ConnStatusType const status{ PQstatus(data.con) };
@@ -54,17 +85,34 @@ connection_t::operator bool() const noexcept
   return false;
   }
 
+detail::error_condition connection_t::status() const noexcept
+  {
+  auto const & data{ pimpl() };
+  if(data.con)
+    {
+    ConnStatusType const s{ PQstatus(data.con) };
+    if(CONNECTION_BAD == s)
+      {
+      auto message {PQerrorMessage(data.con) };
+      return detail::make_error_condition(pgsql::detail::error_code_common::bad, message );
+      }
+    else
+      return detail::make_error_condition( static_cast<pgsql::detail::error_code_common>(static_cast<int>(s)+1) );
+    }
+  return detail::make_error_condition( pgsql::detail::error_code_common::empty );
+  }
+
 connection_t::connection_t( connection_t && rh ) noexcept
     : cxxsql::detail::connection_base<connection_t>( std::move(rh) )
   {
-  *connection_data(resource_data_) = std::exchange(*connection_data(rh.resource_data_), {});
-  backend_ = std::exchange( rh.backend_,detail::backends_e::destroyed);
+  pimpl() = std::exchange(rh.pimpl(), {});
+  backend_ = std::exchange( rh.backend_, cxxsql::detail::backends_e::destroyed);
   }
 
 connection_t & connection_t::operator =( connection_t && rh ) noexcept
   {
-  *connection_data(resource_data_) = std::exchange(*connection_data(rh.resource_data_), {});
-  backend_ = std::exchange( rh.backend_,detail::backends_e::destroyed);
+  pimpl() = std::exchange(rh.pimpl(), {});
+  backend_ = std::exchange( rh.backend_, cxxsql::detail::backends_e::destroyed);
   return *this;
   }
   
@@ -95,7 +143,7 @@ connection_t open( open_params_type params ) noexcept
       {
       auto itv{ std::copy(std::begin(kvp.first), std::end(kvp.first), itk) };
       *itv++ = {};
-      auto nxt{ std::copy(std::begin(kvp.first), std::end(kvp.first), itv) };
+      auto nxt{ std::copy(std::begin(kvp.second), std::end(kvp.second), itv) };
       *nxt++ = {};
       *it_ok++ = &*itk;
       *it_ov++ = &*itv;
@@ -107,8 +155,7 @@ connection_t open( open_params_type params ) noexcept
     char const * const * const values{ &*it_beg_ov };
     PGconn * pgcon{ PQconnectdbParams(keywords, values, expand_dbname) };
     using pimpl_t = connection_t::pimpl_t;
-    connection_t conn{ pimpl_t{ .con=pgcon } };
-    return conn;
+    return connection_t { pimpl_t{ .con=pgcon } };
     }
   return {};
   }
