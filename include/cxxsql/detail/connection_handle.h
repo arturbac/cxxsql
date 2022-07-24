@@ -2,7 +2,13 @@
 
 #include <cstdint>
 #include <concepts>
+#include "pragmas.h"
 
+#if defined(cxxsql_EXPORTS)
+  #define CXXSQL_PUBLIC_DECL ATTRIBUTE_EXPORT_DECL
+#else
+  #define CXXSQL_PUBLIC_DECL ATTRIBUTE_IMPORT_DECL
+#endif
 namespace cxxsql::detail
 {
   enum struct backends_e : uint8_t { destroyed, pgsql, sqlite };

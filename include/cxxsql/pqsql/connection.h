@@ -9,6 +9,7 @@
 
 namespace cxxsql::pgsql
 {
+CXXSQL_PUBLIC_DECL
 class connection_t final : public cxxsql::detail::connection_base<connection_t>
   {
 public:
@@ -46,19 +47,39 @@ public:
   
   ~connection_t() noexcept { free_resources(); }
 
-  void close() noexcept { free_resources(); }
-
-protected:
   void free_resources() noexcept;
 
   };
   
   
   using open_params_type = std::span<const std::pair<std::string_view, std::string_view>>;
+
   ///\brief opens connection
   ///\param params span of pair of parameters accepeted by postgresql https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
   ///\returns connection instance
+  CXXSQL_PUBLIC_DECL
   connection_t open( open_params_type params ) noexcept;
 
-  inline void close(connection_t & conn) noexcept { conn.close(); }
+  inline void close(connection_t & conn) noexcept { conn.free_resources(); }
+
+  CXXSQL_PUBLIC_DECL
+  std::string_view database( connection_t const & conn ) noexcept;
+
+  CXXSQL_PUBLIC_DECL
+  std::string_view user( connection_t const & conn ) noexcept;
+
+  CXXSQL_PUBLIC_DECL
+  std::string_view password( connection_t const & conn ) noexcept;
+
+  CXXSQL_PUBLIC_DECL
+  std::string_view host( connection_t const & conn ) noexcept;
+
+  CXXSQL_PUBLIC_DECL
+  std::string_view hostaddr( connection_t const & conn ) noexcept;
+
+  CXXSQL_PUBLIC_DECL
+  std::string_view port( connection_t const & conn ) noexcept;
+
+  CXXSQL_PUBLIC_DECL
+  int protocol_version( connection_t const & conn ) noexcept;
 }

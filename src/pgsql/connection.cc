@@ -61,6 +61,7 @@ void connection_t::free_resources() noexcept
   auto & data{ pimpl() };
   if(data.con )
     {
+//     printf("free %lX\n", reinterpret_cast<size_t>(data.con) );
     PQfinish(data.con);
     data.con = nullptr;
     }
@@ -72,6 +73,7 @@ connection_t::connection_t( pimpl_t const & res ) noexcept
   {
   auto & data = pimpl();
   data = res;
+//   printf("construct [%lX].con=%lX\n", reinterpret_cast<size_t>(&data), reinterpret_cast<size_t>(data.con) );
   }
   
 connection_t::operator bool() const noexcept
@@ -155,9 +157,65 @@ connection_t open( open_params_type params ) noexcept
     char const * const * const values{ &*it_beg_ov };
     PGconn * pgcon{ PQconnectdbParams(keywords, values, expand_dbname) };
     using pimpl_t = connection_t::pimpl_t;
+//     printf("alloc %lX\n", reinterpret_cast<size_t>(pgcon) );
     return connection_t { pimpl_t{ .con=pgcon } };
     }
   return {};
   }
 
+  std::string_view database( connection_t const & conn ) noexcept
+    {
+    auto const & data{ conn.pimpl() };
+    if(data.con != nullptr)
+      return PQdb( data.con );
+    return {};
+    }
+
+  std::string_view user( connection_t const & conn ) noexcept
+    {
+    auto const & data{ conn.pimpl() };
+    if(data.con != nullptr)
+      return PQuser( data.con );
+    return {};
+    }
+
+  std::string_view password( connection_t const & conn ) noexcept
+    {
+    auto const & data{ conn.pimpl() };
+    if(data.con != nullptr)
+      return PQpass( data.con );
+    return {};
+    }
+
+  std::string_view host( connection_t const & conn ) noexcept
+    {
+    auto const & data{ conn.pimpl() };
+    if(data.con != nullptr)
+      return PQhost( data.con );
+    return {};
+    }
+
+  std::string_view hostaddr( connection_t const & conn ) noexcept
+    {
+    auto const & data{ conn.pimpl() };
+    if(data.con != nullptr)
+      return PQhostaddr( data.con );
+    return {};
+    }
+
+  std::string_view port( connection_t const & conn ) noexcept
+    {
+    auto const & data{ conn.pimpl() };
+    if(data.con != nullptr)
+      return PQport( data.con );
+    return {};
+    }
+
+  int protocol_version( connection_t const & conn ) noexcept
+    {
+    auto const & data{ conn.pimpl() };
+    if(data.con != nullptr)
+      return PQprotocolVersion( data.con );
+    return -1;
+    }
 }
