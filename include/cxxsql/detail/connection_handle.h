@@ -23,6 +23,7 @@ class connection_t;
 }
 namespace cxxsql::detail
 {
+CXXSQL_PUBLIC_DECL
 struct connection_handle
   {
   [[no_unique_address]]
@@ -45,6 +46,7 @@ public:
   };
   
 template<typename Super>
+CXXSQL_PUBLIC_DECL
 class connection_base : public connection_handle
   {
 protected:
