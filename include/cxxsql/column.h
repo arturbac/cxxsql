@@ -57,7 +57,7 @@ namespace cxxsql
     requires
       {
       typename T::tag;
-      std::same_as<typename T::tag, detail::contraint_list_tag>;
+      requires std::same_as<typename T::tag, detail::contraint_list_tag>;
       };
     }
     
