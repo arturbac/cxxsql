@@ -154,6 +154,7 @@ namespace cxxsql
   struct column_t
     {
     using type = column_t<nm,dbtype,cstrs>;
+    using name_type = decltype(nm);
     static constexpr detail::nullable_e nullable =  detail::null_constraint<cstrs>();
     using db_type = detail::map_db_type<dbtype::underlying_db_type(), dbtype::size(), nullable>;
     using value_type = typename db_type::type;

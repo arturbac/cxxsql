@@ -26,6 +26,7 @@ namespace cxxsql
   
   namespace detail
   {
+      
     template<typename Member>
     consteval bool must_be_unique_column_name() noexcept { return true; }
 
@@ -71,8 +72,19 @@ namespace cxxsql
   struct table_t : public table_elements_t<Members ...>
     {
     static constexpr auto name() noexcept { return str; }
+    
+    using column_names_t = std::tuple<typename Members::name_type ...>;
+    
+    static constexpr column_names_t column_names() noexcept 
+      { return column_names_t{Members::name().value() ...};}
     };
     
+  template<typename table_type>
+  consteval auto column_names() noexcept 
+    {
+    return table_type::column_names();
+    }
+  
   namespace detail
     {
     struct sql_command_tag {};
@@ -141,4 +153,5 @@ namespace cxxsql
                                )
         };
     }
+    
 }

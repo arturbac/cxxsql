@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <type_traits>
 #include <concepts>
+#include <array>
 
 namespace cxxsql::concepts
 {
@@ -58,5 +59,15 @@ namespace cxxsql::detail
     using next_member_t = void;
 //     static constexpr unsigned index() noexcept { return counter; }
     };
+    
+  template<typename value_type, unsigned sz1, unsigned sz2 >
+  consteval auto concat_array(std::array<value_type,sz1> l, std::array<value_type,sz2> r) noexcept
+    -> std::array<value_type,sz1+sz2>
+    {
+    std::array<value_type,sz1+sz2> result;
+    auto it { std::copy( l.begin(), l.end(), result.data() ) };
+    it = std::copy( r.begin(), r.end(), it );
+    return result;
+    }
 }
 

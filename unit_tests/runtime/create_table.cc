@@ -19,19 +19,20 @@ int main() {
       >;
   static constexpr auto create_statement_test_table = create_table_statement<test_table_t>();
   
-  expect( create_statement_test_table.value().view() == 
+  static_assert( create_statement_test_table.value().view() == 
 R"(CREATE TABLE test_table (
 	"id" int NOT NULL PRIMARY KEY,
-	"name" char[3] NOT NULL,
-	"nameopt" char[3] NULL UNIQUE,
+	"name" char(3) NOT NULL,
+	"nameopt" char(3) NULL UNIQUE,
 	"oid" int NULL,
 	"descr" varchar NULL,
 	"data" varbinary NOT NULL,
-	"data2" binary[5] NOT NULL
+	"data2" binary(5) NOT NULL
 	))"
   );
+
   }
-  
+
   {
   using test_table_t = 
     table_t<"test_table2",
@@ -39,11 +40,12 @@ R"(CREATE TABLE test_table (
                                             constraints::primary_key>>
       >;
   static constexpr auto create_statement_test_table = create_table_statement<test_table_t>();
-  
-  expect( create_statement_test_table.value().view() == 
+  static_assert( create_statement_test_table.value().view() == 
 R"(CREATE TABLE test_table2 (
 	"id" int NOT NULL PRIMARY KEY
-	))"
-  );
+	))");
   }
+  
+  
+  
 }

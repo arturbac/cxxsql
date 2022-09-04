@@ -41,7 +41,12 @@ function(add_runtime_test TEST_NAME )
   
   add_dependencies( unit_tests ${TEST_NAME}_cxx20_rt )
   
-  target_compile_options( ${TEST_NAME}_cxx20_rt PRIVATE -Wno-exit-time-destructors )
+  target_compile_options( ${TEST_NAME}_cxx20_rt 
+    PRIVATE 
+      -Wno-exit-time-destructors 
+      -Wno-global-constructors
+      -Wno-ctad-maybe-unsupported
+    )
   target_link_libraries( ${TEST_NAME}_cxx20_rt 
     PRIVATE 
       cxxsql::cxxsql

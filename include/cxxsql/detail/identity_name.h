@@ -29,6 +29,6 @@ namespace cxxsql::detail
       { return value_ <=> r.value_; }
       
     constexpr std::basic_string_view<char> view() const noexcept 
-      { return value_.value(); }
+      { return value_.view(); }
     };
 }

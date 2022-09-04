@@ -23,6 +23,8 @@ private:
   std::byte resource_data_[sizeof(void *)];
   
 public:
+  static constexpr backends_e backends_type = backends_e::pgsql;
+  
   [[nodiscard]]
   pimpl_t & pimpl() noexcept;
 
