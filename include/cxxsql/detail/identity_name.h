@@ -14,6 +14,7 @@ namespace cxxsql::detail
     
     constexpr auto value() const noexcept { return value_; }
     
+    constexpr identity_name() noexcept = default;
     constexpr identity_name(const char (&v)[N+1]) noexcept : value_{v}
       {}
       

@@ -11,6 +11,7 @@ namespace cxxsql
   template<unsigned N>
   struct column_name : public detail::identity_name<column_name_tag,N> 
     {
+    column_name() noexcept = default;
     using detail::identity_name<column_name_tag,N>::identity_name;
     };
 
